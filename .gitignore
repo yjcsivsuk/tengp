@@ -9,3 +9,4 @@ tengp.egg-info
 **/.ipynb_checkpoints
 dist
 sphinx/build
+.DS_Store
