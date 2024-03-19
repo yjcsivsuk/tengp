@@ -8,6 +8,7 @@ class UnknownMutationException(Exception):
 
 def map_to_np_phenotype(genes, params):
     nodes = []
+    # 添加输入结点
     for _ in range(params.n_inputs):
         nodes.append(Node(None, [], is_input=True))
 
@@ -20,12 +21,13 @@ def map_to_np_phenotype(genes, params):
 
         nodes.append(Node(function, node_genes[1:], arity))
 
+    #添加输出结点
     for gene in genes[-params.n_outputs:]:
         nodes.append(Node(None, [gene], is_output=True))
 
     return nodes
 
-
+# 找出给定神经网络（或CGP图）中的所有活跃路径。活跃路径是指从输入节点到输出节点的有效路径，其中每个内部节点都至少有一个活跃的输入。
 def active_paths(nodes):
     stack = []
     paths = []

@@ -64,6 +64,7 @@ def simple_es(X, y, cost_function, params,
         random.seed(random_state)
 
     # initial generation
+    # 初始化种群
     ib = IndividualBuilder(params)
 
     if seed_individual:
@@ -72,23 +73,25 @@ def simple_es(X, y, cost_function, params,
     else:
         population = [ib.create() for _ in range(population_size)]
 
-    n_evals = 0
+    n_evals = 0  # 迭代次数
 
-    generation = 0
+    generation = 0  # 种群代数
 
+    # 计算fitness，评估种群中的个体
     for individual in population:
+        # 如果cf_individual设置为true，计算cost_function的时候就用真实值和个体作为参数；如果为false，就用真实值和经过transform()后的输出值作为参数
         if params.cf_individual:
             individual.fitness = cost_function(y, individual)
         else:
-            output = individual.transform(X)
+            output = individual.transform(X)  # X是一个2维数组
             individual.fitness = cost_function(y, output)
         n_evals += 1
 
-
-    while n_evals < evaluations:
+    # 迭代种群，每次循环都生成新的一代种群generation
+    while n_evals <= evaluations:
         generation += 1
 
-        parent = min(population, key=lambda x: x.fitness)
+        parent = min(population, key=lambda x: x.fitness)  # 从当前种群中选择适应度最高（fitness最小）的个体作为父代
 
         if log is not None:
             log.append(parent.fitness)
@@ -97,10 +100,11 @@ def simple_es(X, y, cost_function, params,
             population.sort(key=lambda x: x.fitness)
             return population
 
-        population = [parent.apply(move(parent)) for _ in range(population_size - 1)]
+        population = [parent.apply(move(parent)) for _ in range(population_size - 1)]  # 对父代进行突变操作move，生成新一代种群。move()是突变操作，apply()和move()是绑定的
 
-        population += [parent]
+        population += [parent]  #这里应该就是1+λ
 
+        # 评估新一代个体的fitness
         for individual in population:
             if params.cf_individual:
                 individual.fitness = cost_function(y, individual)
@@ -109,10 +113,12 @@ def simple_es(X, y, cost_function, params,
                 individual.fitness = cost_function(y, output)
             n_evals += 1
 
+        # 输出进化信息
         if verbose and generation % verbose == 0:
             print(f'Gen: {generation}, population: {sorted([x.fitness for x in population])}')
+            print(f"Best individual: {population[0].get_expression()}")  # 新增一条输出最好个体的表达式
 
-
+    # 返回最后一代种群中的最佳个体
     population.sort(key=lambda x: x.fitness)
 
     if log is not None:
