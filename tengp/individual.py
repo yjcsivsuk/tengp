@@ -53,6 +53,7 @@ class Individual(ABC):
             return True
         return False
 
+    # 获取活跃路径上的基因型的id
     def get_active_genes(self):
         """ Return all active genes. """
         active_genes = []
